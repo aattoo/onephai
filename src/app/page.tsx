@@ -151,7 +151,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto mt-12">
           <Link
             href="/community/challenge"
-            className="block bg-gradient-to-r from-blue-600/30 to-purple-600/30 border border-blue-400/30 rounded-xl p-6 hover:border-blue-400/60 transition-colors"
+            className="block bg-gray-800/60 border border-gray-600/40 rounded-xl p-6 hover:border-gray-500/60 hover:bg-gray-800/80 transition-colors"
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="text-sm font-bold text-blue-300">{t.cupTitle}</span>
