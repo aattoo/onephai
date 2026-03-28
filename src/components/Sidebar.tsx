@@ -80,17 +80,36 @@ export default function Sidebar() {
   const { user } = useAuth();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const toggleMenu = (key: string) => {
     setOpenMenus((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <aside
-      className={`fixed left-0 top-0 h-full bg-gray-900 text-white transition-all duration-300 z-50 flex flex-col ${
-        collapsed ? "w-16" : "w-60"
-      }`}
-    >
+    <>
+      {/* Mobile hamburger */}
+      <button
+        onClick={() => setMobileOpen(!mobileOpen)}
+        className="fixed top-4 left-4 z-[60] lg:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 text-white"
+        aria-label="Toggle menu"
+      >
+        {mobileOpen ? "✕" : "☰"}
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed left-0 top-0 h-full bg-gray-900 text-white transition-transform duration-300 z-50 flex flex-col ${
+          collapsed ? "w-16" : "w-60"
+        } ${mobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+      >
       {/* Logo */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
         {!collapsed && (
@@ -173,5 +192,6 @@ export default function Sidebar() {
         })}
       </nav>
     </aside>
+    </>
   );
 }

@@ -23,7 +23,7 @@ export default function RootLayout({
         <LanguageProvider>
           <AuthProvider>
             <Sidebar />
-            <div className="flex-1 ml-60 flex flex-col min-h-screen">
+            <div className="flex-1 ml-0 lg:ml-60 flex flex-col min-h-screen">
               <Header />
               <main className="flex-1">{children}</main>
             </div>
