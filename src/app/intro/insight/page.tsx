@@ -375,9 +375,16 @@ export default function InsightPage() {
         {c.newInsight}
       </button>
 
-      {/* Loading */}
+      {/* Loading skeleton */}
       {loading && (
-        <div className="text-center py-12 text-gray-400">Loading...</div>
+        <div className="py-8 space-y-6">
+          <div className="rounded-xl bg-gray-100 h-48 animate-pulse" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-xl bg-gray-100 h-40 animate-pulse" />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Featured Article */}
