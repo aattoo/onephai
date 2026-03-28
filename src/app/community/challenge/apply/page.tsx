@@ -86,6 +86,10 @@ export default function ApplyPage() {
     const description = (form.get("description") as string).trim();
     const motivation = (form.get("motivation") as string).trim();
 
+    if (!user) {
+      setError(lang === "ko" ? "로그인이 필요합니다." : "Please log in first.");
+      return;
+    }
     if (!teamName || !leaderName || !leaderEmail || !organization || !track || !title || !description) {
       setError(c.required);
       return;
