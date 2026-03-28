@@ -252,7 +252,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-6">
             <Link
               href="/intro/overview"
-              className="group block p-6 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all"
+              className="group block p-6 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-[border-color,box-shadow] duration-200"
             >
               <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 mb-2">
                 Overview
@@ -261,7 +261,7 @@ export default function Home() {
             </Link>
             <Link
               href="/intro/structure"
-              className="group block p-6 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all"
+              className="group block p-6 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-[border-color,box-shadow] duration-200"
             >
               <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 mb-2">
                 Platform Structure
