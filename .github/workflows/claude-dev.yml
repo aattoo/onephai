@@ -1,0 +1,124 @@
+name: Claude Auto-Dev
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  claude-develop:
+    if: github.event.label.name == 'approved'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Create feature branch
+        run: |
+          ISSUE_NUM=${{ github.event.issue.number }}
+          BRANCH_NAME="feat/issue-${ISSUE_NUM}"
+          git checkout -b "$BRANCH_NAME"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "ISSUE_NUM=$ISSUE_NUM" >> $GITHUB_ENV
+
+      - name: Add issue comment - development started
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: '🤖 **Claude Auto-Dev**: 개발을 시작합니다.\n\n브랜치: `' + process.env.BRANCH_NAME + '`\n\n완료되면 PR이 자동으로 생성됩니다.'
+            });
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              labels: ['in-progress']
+            });
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: "claude-sonnet-4-20250514"
+          prompt: |
+            GitHub Issue #${{ github.event.issue.number }}을 해결해주세요.
+
+            Issue 제목: ${{ github.event.issue.title }}
+            Issue 내용:
+            ${{ github.event.issue.body }}
+
+            다음 규칙을 따라주세요:
+            1. 기존 코드 스타일과 패턴을 유지
+            2. 한국어/영어 이중 언어 지원 (useLang 패턴)
+            3. Supabase 연동 시 RLS 정책 포함
+            4. TypeScript 타입 안전성 유지
+            5. next build 통과 확인
+
+            작업이 완료되면 변경된 파일 목록과 설명을 출력해주세요.
+          allowed_tools: "Edit,Write,Read,Bash(npm*),Bash(npx*),Bash(git*),Glob,Grep"
+
+      - name: Build check
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Commit and push
+        run: |
+          git config user.name "claude[bot]"
+          git config user.email "claude-bot@anthropic.com"
+          git add -A
+          git diff --staged --quiet && echo "No changes" && exit 0
+          git commit -m "feat: resolve issue #${ISSUE_NUM}
+
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          git push origin "$BRANCH_NAME"
+
+      - name: Create Pull Request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const branchName = process.env.BRANCH_NAME;
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `feat: ${issue.title}`,
+              head: branchName,
+              base: 'main',
+              body: `## Summary\nAuto-developed by Claude from Issue #${issue.number}\n\n### Issue\n${issue.title}\n\n### Changes\nSee diff for details.\n\nCloses #${issue.number}\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`
+            });
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `✅ **Claude Auto-Dev**: 개발 완료!\n\nPR: ${pr.html_url}\n\n리뷰 후 머지하면 자동 배포됩니다.`
+            });
+
+      - name: Handle failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: '❌ **Claude Auto-Dev**: 자동 개발 중 오류가 발생했습니다.\n\n[Actions 로그 확인](' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId + ')'
+            });
