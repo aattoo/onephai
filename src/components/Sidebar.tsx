@@ -12,10 +12,10 @@ type NavItem =
   | { href?: never; label: { ko: string; en: string }; icon: string; children: NavChild[] };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: { ko: "Home", en: "Home" }, icon: "🏠" },
+  { href: "/", label: { ko: "Home", en: "Home" }, icon: "H" },
   {
     label: { ko: "PHYSICAL AI", en: "PHYSICAL AI" },
-    icon: "🤖",
+    icon: "Ph",
     children: [
       { href: "/intro/overview", label: { ko: "Overview", en: "Overview" } },
       { href: "/intro/structure", label: { ko: "Platform Structure", en: "Platform Structure" } },
@@ -24,7 +24,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: { ko: "Community", en: "Community" },
-    icon: "👥",
+    icon: "Co",
     children: [
       { href: "/community/challenge", label: { ko: "Startup Challenge", en: "Startup Challenge" } },
       { href: "/community/story", label: { ko: "Story", en: "Story" } },
@@ -34,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: { ko: "Academy", en: "Academy" },
-    icon: "🎓",
+    icon: "Ac",
     children: [
       { href: "/academy/phai-academy", label: { ko: "PhAI Academy", en: "PhAI Academy" } },
       { href: "/academy/tutorials", label: { ko: "Tutorials", en: "Tutorials" } },
@@ -42,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: { ko: "KITS", en: "KITS" },
-    icon: "🧰",
+    icon: "Ki",
     children: [
       { href: "/kits/actuation", label: { ko: "Actuation Modules", en: "Actuation Modules" } },
       { href: "/kits/sensor", label: { ko: "Sensor Modules", en: "Sensor Modules" } },
@@ -53,14 +53,14 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: { ko: "Studio", en: "Studio" },
-    icon: "🎨",
+    icon: "St",
     children: [
       { href: "/studio", label: { ko: "PhAI Studio", en: "PhAI Studio" } },
     ],
   },
   {
     label: { ko: "Admin", en: "Admin" },
-    icon: "⚙️",
+    icon: "Ad",
     children: [
       { href: "/admin/applications", label: { ko: "신청 관리", en: "Applications" } },
       { href: "/admin/content", label: { ko: "콘텐츠 관리", en: "Content Management" } },
@@ -71,7 +71,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/admin/settings", label: { ko: "사이트 설정", en: "Site Settings" } },
     ],
   },
-  { href: "/contact", label: { ko: "Contact Us", en: "Contact Us" }, icon: "📧" },
+  { href: "/contact", label: { ko: "Contact Us", en: "Contact Us" }, icon: "Ct" },
 ];
 
 export default function Sidebar() {
@@ -100,7 +100,7 @@ export default function Sidebar() {
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1 rounded hover:bg-gray-700 text-gray-400"
+          className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-700 text-gray-400"
         >
           {collapsed ? "▶" : "◀"}
         </button>
@@ -127,7 +127,7 @@ export default function Sidebar() {
                     isActive ? "text-blue-400" : "text-gray-300"
                   }`}
                 >
-                  <span className="text-base">{item.icon}</span>
+                  <span className="w-6 h-6 flex items-center justify-center text-[11px] font-mono font-bold rounded bg-gray-700/50 text-gray-400 shrink-0">{item.icon}</span>
                   {!collapsed && (
                     <>
                       <span className="ml-3 flex-1 text-left">{labelText}</span>
@@ -166,7 +166,7 @@ export default function Sidebar() {
                   : "text-gray-300 hover:text-white hover:bg-gray-800"
               }`}
             >
-              <span className="text-base">{item.icon}</span>
+              <span className="w-6 h-6 flex items-center justify-center text-[11px] font-mono font-bold rounded bg-gray-700/50 text-gray-400 shrink-0">{item.icon}</span>
               {!collapsed && <span className="ml-3">{labelText}</span>}
             </Link>
           );
