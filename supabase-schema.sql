@@ -30,25 +30,57 @@ create table if not exists applications (
   admin_note text
 );
 
--- 2. RLS (Row Level Security) 설정
-alter table applications enable row level security;
+-- 2. 관리자 테이블
+create table if not exists admins (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) unique not null,
+  email text not null,
+  created_at timestamptz default now() not null
+);
 
--- 누구나 자신의 신청서 생성 가능
-create policy "Users can create own applications"
+-- 3. RLS (Row Level Security) 설정
+alter table applications enable row level security;
+alter table admins enable row level security;
+
+-- admin 확인 함수
+create or replace function is_admin()
+returns boolean as $$
+begin
+  return exists (select 1 from admins where user_id = auth.uid());
+end;
+$$ language plpgsql security definer;
+
+-- 사용자: 자신의 신청서만 생성 (user_id NOT NULL 강제)
+create policy "Authenticated users can create applications"
   on applications for insert
   to authenticated
-  with check (auth.uid() = user_id);
+  with check (auth.uid() = user_id and user_id is not null);
 
--- 자신의 신청서만 조회 가능
+-- 사용자: 자신의 신청서만 조회
 create policy "Users can view own applications"
   on applications for select
   to authenticated
   using (auth.uid() = user_id);
 
--- Admin은 모든 신청서 조회/수정 가능 (서비스 역할 키로 접근)
--- 참고: 실제 Admin 기능은 service_role key를 서버사이드에서 사용
+-- Admin: 모든 신청서 조회
+create policy "Admins can view all applications"
+  on applications for select
+  to authenticated
+  using (is_admin());
 
--- 3. updated_at 자동 업데이트 트리거
+-- Admin: 모든 신청서 업데이트
+create policy "Admins can update all applications"
+  on applications for update
+  to authenticated
+  using (is_admin());
+
+-- Admin: 자신의 admin 상태 확인
+create policy "Users can check own admin status"
+  on admins for select
+  to authenticated
+  using (auth.uid() = user_id);
+
+-- 4. updated_at 자동 업데이트 트리거
 create or replace function update_updated_at()
 returns trigger as $$
 begin
